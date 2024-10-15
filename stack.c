@@ -3,69 +3,105 @@
 #include <string.h>
 #include "stack.h"
 
-Stack *newStack(void) {
-    Stack *s;
-    s = malloc(sizeof(Stack));
-    if (s == NULL){
-        return NULL;
-    }
-    s->top = NULL;
-    return s;
+static int
+isNullPointer(void *p)
+{
+	return p == NULL;
 }
 
-void push(char *str, Stack *s) {
-    if (s == NULL || str == NULL){
-        return;
-    }
+Stack *
+newStack(void)
+{
+	Stack *s;
 
-    if (strlen(str) > Strsz - 1){
-        return;
-    }
-
-    Node *node;
-    node = malloc(sizeof(Node));
-    if (node == NULL){
-        return;
-    }
-    strcpy(node->str, str);
-    node->next = s->top;
-    s->top = node;
+	s = malloc(sizeof(Stack));
+	if (isNullPointer(s)) {
+		return NULL;
+	}
+	s->top = NULL;
+	return s;
 }
 
-char *pop(Stack *s){
-    Node *topNode;
-    char *data;
-    if (s == NULL || s->top == NULL){
-        return NULL;
-    }
+static int
+isNullOnePointer(Stack *s, void *ptr)
+{
+	return isNullPointer(s) || isNullPointer(ptr);
+}
 
-    topNode = s->top;
-    s->top = topNode->next;
+static int
+isLongerThanStrsz(char *str)
+{
+	return strlen(str) > Strsz - 1;
+}
 
-    data = malloc(strlen(topNode->str) + 1);
-    if (data == NULL){
-        return NULL;
-    }
+void
+push(char *str, Stack *s)
+{
+	if (isNullOnePointer(s, str)) {
+		return;
+	}
 
-    strcpy(data, topNode->str);
+	if (isLongerThanStrsz(str)) {
+		return;
+	}
 
-    free(topNode);
+	Node *node;
 
-    return data;
+	node = malloc(sizeof(Node));
+	if (isNullPointer(node)) {
+		return;
+	}
+	strcpy(node->str, str);
+	node->next = s->top;
+	s->top = node;
+}
+
+static void
+swapTopWithNext(Stack *s)
+{
+	s->top = s->top->next;
+}
+
+char *
+pop(Stack *s)
+{
+	Node *topNode;
+	char *data;
+
+	if (isNullOnePointer(s, s->top)) {
+		return NULL;
+	}
+
+	topNode = s->top;
+	swapTopWithNext(s);
+
+	data = malloc(strlen(topNode->str) + 1);
+	if (isNullPointer(data)) {
+		return NULL;
+	}
+
+	strcpy(data, topNode->str);
+
+	free(topNode);
+
+	return data;
 
 }
 
-void destroystack(Stack *s) {
-    Node *topNode;
-    if (s == NULL){
-        return;
-    }
+void
+destroystack(Stack *s)
+{
+	Node *topNode;
 
-    while(s->top != NULL){
-        topNode = s->top;
-        s->top = topNode->next;
-        free(topNode);
-    }
+	if (isNullPointer(s)) {
+		return;
+	}
 
-    free(s);
+	while (!isNullPointer(s->top)) {
+		topNode = s->top;
+		swapTopWithNext(s);
+		free(topNode);
+	}
+
+	free(s);
 }

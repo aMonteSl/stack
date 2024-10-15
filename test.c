@@ -2,32 +2,38 @@
 #include <stdlib.h>
 #include "stack.h"
 
-int main(void) {
-    Stack *s = newStack();
-    if (s == NULL) {
-        fprintf(stderr, "Error: no se pudo crear la pila, memoria insuficiente.\n");
-        exit(EXIT_FAILURE);
-    }
+int
+main(void)
+{
+	Stack *s = newStack();
 
-    for (char i = 'a'; i <= 'z'; i++) {
-        for (char j = 'a'; j <= 'z'; j++) {
-            char str[3] = {i, j, '\0'};
-            push(str, s);
-        }
-    }
-    
-    while (s->top != NULL) {
-        char *str = pop(s);
-        printf("%s\n", str);
-        free(str);
-    }
-    
+	if (s == NULL) {
+		fprintf(stderr,
+			"Error: no se pudo crear la pila, memoria insuficiente.\n");
+		exit(EXIT_FAILURE);
+	}
 
-    destroystack(s);
-    s = NULL;
+	for (char i = 'a'; i <= 'z'; i++) {
+		for (char j = 'a'; j <= 'z'; j++) {
+			char str[3] = { i, j, '\0' };
+			push(str, s);
+		}
+	}
 
-    
+	while (s->top != NULL) {
+		char *str = pop(s);
 
-    exit(EXIT_SUCCESS);
+		if (str == NULL) {
+			fprintf(stderr,
+				"Error: no se pudo extraer el elemento de la pila.\n");
+			break;
+		}
+		printf("%s\n", str);
+		free(str);
+	}
+
+	destroystack(s);
+	s = NULL;
+
+	exit(EXIT_SUCCESS);
 }
-
